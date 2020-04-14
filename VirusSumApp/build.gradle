@@ -1,0 +1,37 @@
+apply plugin: 'java'
+apply plugin: 'jacoco'
+apply plugin: 'application'
+
+
+description = 'Simulate a virus distribution'
+group = 'at.reder.virussim'
+
+mainClassName = 'at.reder.virussim.VirusSumApp.Main'
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.2.+'
+    }
+}
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.+'
+    //    compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.2'
+    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.6.+'
+    //    testImplementation     'junit:junit:4.13'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.+'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.+'
+    testCompile 'org.junit.platform:junit-platform-runner:1.6.+'
+}
+
+test {
+    useJUnitPlatform()
+}
