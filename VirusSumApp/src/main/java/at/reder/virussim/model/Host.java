@@ -1,7 +1,8 @@
 package at.reder.virussim.model;
 
-import at.reder.virussim.listener.TimeChangedListener;
 import java.util.Random;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +10,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author alex
  */
-public class Host implements TimeChangedListener {
+public class Host implements Cloneable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Host.class);
     private static final Random MOVE_RANDOM = new Random();
@@ -108,13 +109,6 @@ public class Host implements TimeChangedListener {
         return this.getVirus() != null;
     }
 
-    @Override
-    public void timeChanged(int timestamp) {
-        if (isInfected()) {
-
-        }
-    }
-
     public int[] getMove() {
         return getMove(getAngle(), getLength());
     }
@@ -135,5 +129,43 @@ public class Host implements TimeChangedListener {
     private int getLength() {
         int absDeviation = Math.round(this.mobilityRadiusDeviation * this.mobilityRadius);
         return MOVE_RANDOM.nextInt(absDeviation * 2) - absDeviation + this.mobilityRadius;
+    }
+
+    @Override
+    public Host clone() throws CloneNotSupportedException {
+        Host hostClone = (Host) super.clone();
+        hostClone.setVirus(this.virus);
+        return hostClone;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        boolean equals;
+        if (other instanceof Host) {
+            Host otherHost = (Host) other;
+            EqualsBuilder equalsBuilder = new EqualsBuilder();
+            equalsBuilder.append(this.healingPeroid, otherHost.getHealingPeroid())
+                    .append(this.immunityTime, otherHost.getImmunityTime())
+                    .append(this.infectionTimestamp, otherHost.getInfectionTimestamp())
+                    .append(this.mobilityRadius, otherHost.getMobilityRadius())
+                    .append(this.mobilityRadiusDeviation, otherHost.getMobilityRadiusDeviation())
+                    .append(this.virus, otherHost.getVirus());
+            equals = equalsBuilder.isEquals();
+        } else {
+            equals = false;
+        }
+        return equals;
+    }
+
+    @Override
+    public int hashCode() {
+        HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
+        hashCodeBuilder.append(this.healingPeroid)
+                .append(this.immunityTime)
+                .append(this.infectionTimestamp)
+                .append(this.mobilityRadius)
+                .append(this.mobilityRadiusDeviation)
+                .append(this.virus);
+        return hashCodeBuilder.toHashCode();
     }
 }
