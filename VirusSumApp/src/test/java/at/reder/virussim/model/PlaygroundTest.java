@@ -6,13 +6,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  *
  * @author alex
  */
+//@SpringBootTest
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = Context.class)
 public class PlaygroundTest {
 
     private static final int MAX_X = 1000;
@@ -43,12 +50,12 @@ public class PlaygroundTest {
     @AfterAll
     public static void tearDownClass() {
     }
-
+    @Autowired
     private Playground playground;
 
     @BeforeEach
     public void setUp() {
-        this.playground = new Playground(MAX_X, MAX_Y, DENSITY);
+//        this.playground = new Playground(MAX_X, MAX_Y, DENSITY);
     }
 
     public void tearDown() {

@@ -1,8 +1,6 @@
 package at.reder.virussim.model;
 
 import java.util.Random;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -149,34 +147,36 @@ public class Host implements Cloneable {
 
     @Override
     public boolean equals(Object other) {
-        boolean equals;
-        if (other instanceof Host) {
-            Host otherHost = (Host) other;
-            EqualsBuilder equalsBuilder = new EqualsBuilder();
-            equalsBuilder.append(this.id, otherHost.getId())
-                    .append(this.healingPeroid, otherHost.getHealingPeroid())
-                    .append(this.immunityTime, otherHost.getImmunityTime())
-                    .append(this.infectionTimestamp, otherHost.getInfectionTimestamp())
-                    .append(this.mobilityRadius, otherHost.getMobilityRadius())
-                    .append(this.mobilityRadiusDeviation, otherHost.getMobilityRadiusDeviation())
-                    .append(this.virus, otherHost.getVirus());
-            equals = equalsBuilder.isEquals();
-        } else {
-            equals = false;
-        }
-        return equals;
+        return (other instanceof Host) && ((Host) other).getId() == this.id;
+//        boolean equals;
+//        if (other instanceof Host) {
+//            Host otherHost = (Host) other;
+//            EqualsBuilder equalsBuilder = new EqualsBuilder();
+//            equalsBuilder.append(this.id, otherHost.getId())
+//                    .append(this.healingPeroid, otherHost.getHealingPeroid())
+//                    .append(this.immunityTime, otherHost.getImmunityTime())
+//                    .append(this.infectionTimestamp, otherHost.getInfectionTimestamp())
+//                    .append(this.mobilityRadius, otherHost.getMobilityRadius())
+//                    .append(this.mobilityRadiusDeviation, otherHost.getMobilityRadiusDeviation())
+//                    .append(this.virus, otherHost.getVirus());
+//            equals = equalsBuilder.isEquals();
+//        } else {
+//            equals = false;
+//        }
+//        return equals;
     }
 
     @Override
     public int hashCode() {
-        HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
-        hashCodeBuilder.append(this.id)
-                .append(this.healingPeroid)
-                .append(this.immunityTime)
-                .append(this.infectionTimestamp)
-                .append(this.mobilityRadius)
-                .append(this.mobilityRadiusDeviation)
-                .append(this.virus);
-        return hashCodeBuilder.toHashCode();
+        return this.id;
+//        HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
+//        hashCodeBuilder.append(this.id)
+//            .append(this.healingPeroid)
+//            .append(this.immunityTime)
+//            .append(this.infectionTimestamp)
+//            .append(this.mobilityRadius)
+//            .append(this.mobilityRadiusDeviation)
+//            .append(this.virus);
+//        return hashCodeBuilder.toHashCode();
     }
 }

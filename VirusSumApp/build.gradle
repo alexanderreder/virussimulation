@@ -1,7 +1,19 @@
 apply plugin: 'java'
 apply plugin: 'jacoco'
 apply plugin: 'application'
+//apply plugin: 'org.junit.platform.gradle.plugin'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
 
+ext.springBootVersion   = '2.2.6.RELEASE'
+ext.junitJupiterVersion = '5.6.+'
+ext.log4jVersion        = '2.13.+'
+ext.slf4jVersion        = '1.7.+'
+
+compileTestJava {
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+}
 
 description = 'Simulate a virus distribution'
 group = 'at.reder.virussim'
@@ -9,30 +21,68 @@ group = 'at.reder.virussim'
 mainClassName = 'at.reder.virussim.VirusSumApp.Main'
 
 buildscript {
+    ext.springBootVersion   = '2.2.6.RELEASE'
     repositories {
         jcenter()
         mavenCentral()
     }
     dependencies {
-        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.2.+'
+        //        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.2.+'
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
     }
 }
 repositories {
     jcenter()
     mavenCentral()
 }
+sourceSets {
+    main {
+        java {
+            srcDirs= ["src/main/java"]
+        }
+        resources {
+            srcDirs= ["src/main/resources"]
+        }
+    }
+    test {
+        java {
+            srcDirs= ["src/test/java"]
+        }
+        resources {
+            srcDirs= ["src/test/resources"]
+        }
+    }
+}
+//junitPlatform {
+//    logManager 'org.apache.logging.log4j.jul.LogManager'
+//}
+configurations.all {
+    exclude module: 'slf4j-log4j12'
+}
 
 dependencies {
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.+'
-    //    compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.2'
-    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.6.+'
-    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
-    //    testImplementation     'junit:junit:4.13'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.+'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.+'
-    testCompile 'org.junit.platform:junit-platform-runner:1.6.+'
+    implementation("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+    implementation("org.springframework.boot:spring-boot-starter:${springBootVersion}")
+    implementation("org.slf4j:slf4j-api:${slf4jVersion}")
+    implementation("org.slf4j:slf4j-log4j12:1.7.+")
+    implementation("org.codehaus.groovy:groovy-all:2.5.+")
+    //    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
+    testImplementation("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
+    testCompile("org.junit.jupiter:junit-jupiter-params:${junitJupiterVersion}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
+    testCompile("org.junit.platform:junit-platform-runner:1.6.+")
+    testCompile("org.junit.platform:junit-platform-engine:1.6.+")
+    testRuntime("org.apache.logging.log4j:log4j-core:${log4jVersion}")
+    testRuntime("org.apache.logging.log4j:log4j-jul:${log4jVersion}")
+
 }
 
 test {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        //        includeTags 'fast', 'smoke & feature-a'
+        // excludeTags 'slow', 'ci'
+        //        includeEngines 'junit-jupiter'
+        // excludeEngines 'junit-vintage'
+    }
 }
