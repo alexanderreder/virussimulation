@@ -1,6 +1,8 @@
 package at.reder.virussim.model;
 
 import at.reder.virussim.listener.TimeChangedListener;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,16 +19,18 @@ public class Playground implements TimeChangedListener {
     private final int maxY;
     private final Host[][] hosts;
     private final Host[][] oldHosts;
+    private final Map<Host, int[]> hostVector;
 
-    public Playground(int maxX, int maxY, double density) {
+    public Playground(int maxX, int maxY, float density) {
         this(maxX, maxY, Math.round(maxX * maxY * density));
     }
 
-    public Playground(int maxX, int maxY, long maxHosts) {
+    public Playground(int maxX, int maxY, int maxHosts) {
         this.maxX = maxX;
         this.maxY = maxY;
         this.hosts = new Host[this.maxX][this.maxY];
         this.oldHosts = new Host[this.maxX][this.maxY];
+        this.hostVector = new HashMap<>(maxHosts);
         initHosts(maxHosts);
     }
 
@@ -42,33 +46,83 @@ public class Playground implements TimeChangedListener {
     public void timeChanged(int timestamp) {
         // 1) copy host grid
         copyHostGrid();
-        // 2) calculate new host infections
-        // 3) calculate new host positions
-        // 4) save new host grid
-        // 5) clear old host grid
+        // 2) clear host grid
+        clearHostGrid();
+        long start = System.currentTimeMillis();
+        this.hostVector.keySet().forEach(host -> {
+            // 2) calculate new host infections
+            calculateInfection(host);
+            // 3) calculate new host positions
+            move(host);
+        });
+        LOGGER.info("Calculating new host infection/position takes {}ms", System.currentTimeMillis() - start);
+        // 5) save new host grid
+        // 6) clear old host grid
     }
 
-    private void initHosts(long maxHosts) {
+    private void initHosts(int maxHosts) {
         long start = System.currentTimeMillis();
         if (maxHosts > (this.maxX * this.maxY * 0.75)) {
-            maxHosts = Math.round(this.maxX * this.maxY * 0.75);
+            maxHosts = Math.round(this.maxX * this.maxY * 0.75f);
             LOGGER.warn("Too much hosts defined. Using {} hosts", maxHosts);
         }
-        for (long host = 0; host < maxHosts; host++) {
+        for (int hostId = 0; hostId < maxHosts; hostId++) {
             int x;
             int y;
             do {
                 x = POS_RANDOM.nextInt(this.maxX);
                 y = POS_RANDOM.nextInt(this.maxY);
             } while (this.hosts[x][y] != null);
-            this.hosts[x][y] = new Host();
+            Host host = generateHost(hostId);
+            this.hosts[x][y] = host;
             this.oldHosts[x][y] = null;
+            this.hostVector.put(host, new int[]{x, y});
         }
         LOGGER.info("Initializing playground ({}/{}) with {} hosts finished in {}ms", this.maxX, this.maxY, maxHosts, System.currentTimeMillis() - start);
     }
 
-    private void move(Host host, int x, int y) {
-        int[] move = host.getMove();
+    private Host generateHost(int id) {
+        Host host = new Host(id);
+        host.setMobilityRadius(100);
+        host.setMobilityRadiusDeviation(0.4f);
+        return host;
+    }
+
+    private void clearHostGrid() {
+        for (int x = 0; x < this.maxX; x++) {
+            for (int y = 0; y < this.maxY; y++) {
+                this.hosts[x][y] = null;
+            }
+        }
+    }
+
+    private void move(Host host) {
+        int[] pos = this.hostVector.get(host);
+        int[] newPos = new int[2];
+        do {
+            int[] move = host.getMove();
+            LOGGER.debug("Pos: {}/{}, Vector: {}/{}", pos[0], pos[1], move[0], move[1]);
+            if (pos[0] + move[0] >= this.maxX) {
+                newPos[0] = pos[0] + move[0] - this.maxX;
+            } else if (pos[0] + move[0] < 0) {
+                newPos[0] = this.maxX + pos[0] + move[0];
+            } else {
+                newPos[0] = pos[0] + move[0];
+            }
+            if (pos[1] + move[1] >= this.maxY) {
+                newPos[1] = pos[1] + move[1] - this.maxY;
+            } else if (pos[1] + move[1] < 0) {
+                newPos[1] = this.maxY + pos[1] + move[1];
+            } else {
+                newPos[1] = pos[1] + move[1];
+            }
+        } while (this.hosts[newPos[0]][newPos[1]] != null);
+        this.hosts[newPos[0]][newPos[1]] = host;
+        this.hostVector.put(host, newPos);
+    }
+
+    private void calculateInfection(Host host) {
+
     }
 
     private void copyHostGrid() {
@@ -82,7 +136,7 @@ public class Playground implements TimeChangedListener {
                     LOGGER.error(ex.getMessage(), ex);
                 }
             }
-        };
+        }
     }
 
 }

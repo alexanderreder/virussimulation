@@ -14,12 +14,21 @@ public class Host implements Cloneable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Host.class);
     private static final Random MOVE_RANDOM = new Random();
+    private final int id;
     private int mobilityRadius;
     private float mobilityRadiusDeviation;
     private int immunityTime;
     private Virus virus;
     private int infectionTimestamp;
     private int healingPeroid;
+
+    public Host(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return this.id;
+    }
 
     /**
      * @return the mobilityRadius
@@ -144,7 +153,8 @@ public class Host implements Cloneable {
         if (other instanceof Host) {
             Host otherHost = (Host) other;
             EqualsBuilder equalsBuilder = new EqualsBuilder();
-            equalsBuilder.append(this.healingPeroid, otherHost.getHealingPeroid())
+            equalsBuilder.append(this.id, otherHost.getId())
+                    .append(this.healingPeroid, otherHost.getHealingPeroid())
                     .append(this.immunityTime, otherHost.getImmunityTime())
                     .append(this.infectionTimestamp, otherHost.getInfectionTimestamp())
                     .append(this.mobilityRadius, otherHost.getMobilityRadius())
@@ -160,7 +170,8 @@ public class Host implements Cloneable {
     @Override
     public int hashCode() {
         HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
-        hashCodeBuilder.append(this.healingPeroid)
+        hashCodeBuilder.append(this.id)
+                .append(this.healingPeroid)
                 .append(this.immunityTime)
                 .append(this.infectionTimestamp)
                 .append(this.mobilityRadius)

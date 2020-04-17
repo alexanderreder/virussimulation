@@ -34,7 +34,7 @@ public class HostTest {
 
     @BeforeEach
     public void setUp() {
-        this.host = new Host();
+        this.host = new Host(0);
         this.host.setMobilityRadius(MOBILITY_RADIUS);
         this.host.setMobilityRadiusDeviation(MOBILITY_RADIUS_DEVIATION);
     }

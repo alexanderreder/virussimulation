@@ -17,7 +17,7 @@ public class PlaygroundTest {
 
     private static final int MAX_X = 1000;
     private static final int MAX_Y = 1000;
-    private static final double DENSITY = 0.25;
+    private static final float DENSITY = 0.25f;
     private static final Logger LOGGER = LoggerFactory.getLogger(PlaygroundTest.class);
 
     private static Host[][] copyHostGrid(Host[][] hosts) {
