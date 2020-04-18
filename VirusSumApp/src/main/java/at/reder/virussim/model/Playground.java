@@ -4,47 +4,36 @@ import at.reder.virussim.listener.TimeChangedListener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 /**
  *
  * @author alex
  */
-@Component
-//@ConfigurationProperties(prefix = "playground")
 public class Playground implements TimeChangedListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Playground.class);
     private static final Random POS_RANDOM = new Random();
-    @Value("${playground.max.x}")
-    private int maxX;
-    @Value("${playground.max.y}")
-    private int maxY;
-    @Value("${playground.max.hosts}")
-    private int maxHosts;
-    @Value("${playground.density}")
-    private float density;
+    private final int maxX;
+    private final int maxY;
+    private final Host[][] hosts;
+    private final Host[][] oldHosts;
+    private final Map<Host, int[]> hostVector;
 
-    private Host[][] hosts;
-    private Host[][] oldHosts;
-    private Map<Host, int[]> hostVector;
+    public Playground(int maxX, int maxY, float density) {
+        this(maxX, maxY, Math.round(maxX * maxY * density));
+    }
 
-//    public Playground(int maxX, int maxY, float density) {
-//        this(maxX, maxY, Math.round(maxX * maxY * density));
-//    }
-//
-//    public Playground(int maxX, int maxY, int maxHosts) {
-//        this.maxX = maxX;
-//        this.maxY = maxY;
-//        this.hosts = new Host[this.maxX][this.maxY];
-//        this.oldHosts = new Host[this.maxX][this.maxY];
-//        this.hostVector = new HashMap<>(maxHosts);
-//        initHosts(maxHosts);
-//    }
+    public Playground(int maxX, int maxY, int maxHosts) {
+        this.maxX = maxX;
+        this.maxY = maxY;
+        this.hosts = new Host[this.maxX][this.maxY];
+        this.oldHosts = new Host[this.maxX][this.maxY];
+        this.hostVector = new HashMap<>(maxHosts);
+        initHosts(maxHosts);
+    }
+
     public Host[][] getHosts() {
         return this.hosts;
     }
@@ -68,18 +57,11 @@ public class Playground implements TimeChangedListener {
         // 6) clear old host grid
     }
 
-    @PostConstruct
-    private void initHosts() {
+    private void initHosts(int maxHosts) {
         long start = System.currentTimeMillis();
-        if (this.maxHosts == 0) {
-            this.maxHosts = Math.round(this.maxX * this.maxY * this.density);
-        }
-        this.hosts = new Host[this.maxX][this.maxY];
-        this.oldHosts = new Host[this.maxX][this.maxY];
-        this.hostVector = new HashMap<>(maxHosts);
-        if (this.maxHosts > (this.maxX * this.maxY * 0.75)) {
-            this.maxHosts = Math.round(this.maxX * this.maxY * 0.75f);
-            LOGGER.warn("Too much hosts defined. Using {} hosts", this.maxHosts);
+        if (maxHosts > (this.maxX * this.maxY * 0.75)) {
+            maxHosts = Math.round(this.maxX * this.maxY * 0.75f);
+            LOGGER.warn("Too much hosts defined. Using {} hosts", maxHosts);
         }
         for (int hostId = 0; hostId < maxHosts; hostId++) {
             int x;

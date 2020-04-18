@@ -91,7 +91,7 @@ public class HostTest {
         double length = Math.sqrt(Math.pow(move[0], 2) + Math.pow(move[1], 2));
         LOGGER.info("Vector/Length: {}/{}", move, length);
         assertTrue((MOBILITY_RADIUS * (1 + MOBILITY_RADIUS_DEVIATION)) >= length
-            && (MOBILITY_RADIUS * (1 - MOBILITY_RADIUS_DEVIATION) <= length));
+                && (MOBILITY_RADIUS * (1 - MOBILITY_RADIUS_DEVIATION) <= length));
     }
 
     @Test
