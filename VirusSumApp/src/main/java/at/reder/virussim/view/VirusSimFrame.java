@@ -1,21 +1,27 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package at.reder.virussim.view;
+
+import at.reder.virussim.listener.PlaygroundChangedListener;
+import at.reder.virussim.model.Playground;
+import javax.swing.JFrame;
 
 /**
  *
  * @author alex
  */
-public class VirusSimFrame extends javax.swing.JFrame {
+public class VirusSimFrame extends JFrame implements PlaygroundChangedListener {
 
     /**
      * Creates new form VirusSimFrame
      */
     public VirusSimFrame() {
         initComponents();
+    }
+
+    @Override
+    public void playgroundChanged(Playground playground) {
+        this.playgroundPanel.removeAll();
+        this.playgroundPanel.add(new PlaygroundPanel(playground));
+        this.playgroundPanel.repaint();
     }
 
     /**
@@ -27,47 +33,53 @@ public class VirusSimFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        toolBar = new javax.swing.JToolBar();
+        jButton1 = new javax.swing.JButton();
+        infoPanel = new javax.swing.JPanel();
+        propertiesPanel = new javax.swing.JPanel();
+        parameterPanel = new javax.swing.JPanel();
+        playgroundPanel = new javax.swing.JPanel();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jMenu2 = new javax.swing.JMenu();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        getContentPane().setLayout(new java.awt.GridBagLayout());
+
+        toolBar.setRollover(true);
+
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("at/reder/virussim/view/Bundle"); // NOI18N
+        jButton1.setText(bundle.getString("VirusSimFrame.jButton1.text")); // NOI18N
+        jButton1.setFocusable(false);
+        jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        toolBar.add(jButton1);
+
+        getContentPane().add(toolBar, java.awt.BorderLayout.PAGE_START);
+        getContentPane().add(infoPanel, java.awt.BorderLayout.PAGE_END);
+        getContentPane().add(propertiesPanel, java.awt.BorderLayout.LINE_END);
+        getContentPane().add(parameterPanel, java.awt.BorderLayout.LINE_START);
+        getContentPane().add(playgroundPanel, java.awt.BorderLayout.CENTER);
+
+        jMenu1.setText(bundle.getString("VirusSimFrame.jMenu1.text")); // NOI18N
+        jMenuBar1.add(jMenu1);
+
+        jMenu2.setText(bundle.getString("VirusSimFrame.jMenu2.text")); // NOI18N
+        jMenuBar1.add(jMenu2);
+
+        setJMenuBar(jMenuBar1);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(VirusSimFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(VirusSimFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(VirusSimFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(VirusSimFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new VirusSimFrame().setVisible(true);
-            }
-        });
-    }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel infoPanel;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JPanel parameterPanel;
+    private javax.swing.JPanel playgroundPanel;
+    private javax.swing.JPanel propertiesPanel;
+    private javax.swing.JToolBar toolBar;
     // End of variables declaration//GEN-END:variables
 }

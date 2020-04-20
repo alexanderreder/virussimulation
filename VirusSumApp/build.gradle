@@ -17,7 +17,7 @@ compileTestJava {
 description = 'Simulate a virus distribution'
 group = 'at.reder.virussim'
 
-mainClassName = 'at.reder.virussim.VirusSumApp.Main'
+mainClassName = 'at.reder.virussim.Main'
 
 buildscript {
     ext.springBootVersion   = '2.2.6.RELEASE'

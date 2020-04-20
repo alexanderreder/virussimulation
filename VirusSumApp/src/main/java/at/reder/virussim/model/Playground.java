@@ -1,9 +1,12 @@
 package at.reder.virussim.model;
 
+import at.reder.virussim.listener.PlaygroundChangedListener;
 import at.reder.virussim.listener.TimeChangedListener;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +23,7 @@ public class Playground implements TimeChangedListener {
     private final Host[][] hosts;
     private final Host[][] oldHosts;
     private final Map<Host, int[]> hostVector;
+    private final Set<PlaygroundChangedListener> playgroundChangedListener;
 
     public Playground(int maxX, int maxY, float density) {
         this(maxX, maxY, Math.round(maxX * maxY * density));
@@ -31,7 +35,16 @@ public class Playground implements TimeChangedListener {
         this.hosts = new Host[this.maxX][this.maxY];
         this.oldHosts = new Host[this.maxX][this.maxY];
         this.hostVector = new HashMap<>(maxHosts);
+        this.playgroundChangedListener = new HashSet<>();
         initHosts(maxHosts);
+    }
+
+    public void addPlaygroundChangeListener(PlaygroundChangedListener pcl) {
+        this.playgroundChangedListener.add(pcl);
+    }
+
+    public void removePlaygroundChangedListener(PlaygroundChangedListener pcl) {
+        this.playgroundChangedListener.remove(pcl);
     }
 
     public Host[][] getHosts() {
@@ -55,6 +68,7 @@ public class Playground implements TimeChangedListener {
         LOGGER.info("Calculating new host infection/position takes {}ms", System.currentTimeMillis() - start);
         // 5) save new host grid
         // 6) clear old host grid
+        playgroundChanged();
     }
 
     private void initHosts(int maxHosts) {
@@ -75,6 +89,7 @@ public class Playground implements TimeChangedListener {
             this.oldHosts[x][y] = null;
             this.hostVector.put(host, new int[]{x, y});
         }
+        playgroundChanged();
         LOGGER.info("Initializing playground ({}/{}) with {} hosts finished in {}ms", this.maxX, this.maxY, maxHosts, System.currentTimeMillis() - start);
     }
 
@@ -134,6 +149,10 @@ public class Playground implements TimeChangedListener {
                 }
             }
         }
+    }
+
+    private void playgroundChanged() {
+        this.playgroundChangedListener.forEach(pcl -> pcl.playgroundChanged(this));
     }
 
 }
