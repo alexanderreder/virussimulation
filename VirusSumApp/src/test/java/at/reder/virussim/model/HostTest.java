@@ -16,8 +16,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author alex
  */
-//@SpringBootTest
 //@ExtendWith(SpringExtension.class)
+//@ContextConfiguration
 public class HostTest {
 
     private static final int MOBILITY_RADIUS = 100;
@@ -114,4 +114,10 @@ public class HostTest {
         LOGGER.info("HashCode: {}/{}", this.host.hashCode(), cloneHost.hashCode());
         assertEquals(this.host.hashCode(), cloneHost.hashCode());
     }
+
+//    @Configuration
+//    @ComponentScan("basepackage")
+//    private static class SpringConfig {
+//
+//    }
 }

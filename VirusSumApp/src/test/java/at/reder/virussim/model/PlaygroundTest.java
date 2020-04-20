@@ -13,9 +13,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author alex
  */
-//@SpringBootTest
 //@ExtendWith(SpringExtension.class)
-//@ContextConfiguration(classes = Context.class)
+//@ContextConfiguration
 public class PlaygroundTest {
 
     private static final int MAX_X = 1000;
@@ -97,4 +96,9 @@ public class PlaygroundTest {
         assertArrayEquals(copiedHosts, this.playground.getOldHosts());
     }
 
+//    @Configuration
+//    @ComponentScan("basepackage")
+//    private static class SpringConfig {
+//
+//    }
 }
