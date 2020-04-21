@@ -11,19 +11,23 @@ import javax.swing.JPanel;
  *
  * @author Alexander Reer
  */
-public class PlaygroundPanel extends JPanel {
+public class PlaygroundComponent extends JPanel {
 
     private final Playground playground;
 
-    public PlaygroundPanel(Playground playground) {
+    public PlaygroundComponent(Playground playground) {
         this.playground = playground;
     }
 
     @Override
-    public void paintComponents(Graphics g) {
-        int width = getParent().getWidth();
-        int height = getParent().getHeight();
+    public void paintComponent(Graphics g) {
         Host[][] hosts = this.playground.getHosts();
+        int width = hosts.length;
+        int height = hosts[0].length;
+        g.setColor(Color.YELLOW);
+        g.fillRect(0, 0, getWidth(), getHeight());
+//        int width = getParent().getWidth();
+//        int height = getParent().getHeight();
         // Create the new image needed
         BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int cc = 0; cc < width; cc++) {
@@ -41,6 +45,6 @@ public class PlaygroundPanel extends JPanel {
                 }
             }//for cols
         }//for rows
-        g.drawImage(img, 0, 0, width, height, null);
+        g.drawImage(img, 0, 0, null);
     }
 }

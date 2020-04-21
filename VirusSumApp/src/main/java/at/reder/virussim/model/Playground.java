@@ -95,8 +95,8 @@ public class Playground implements TimeChangedListener {
 
     private Host generateHost(int id) {
         Host host = new Host(id);
-        host.setMobilityRadius(100);
-        host.setMobilityRadiusDeviation(0.4f);
+        host.setMobilityRadius((this.maxX + this.maxY) / 6);
+        host.setMobilityRadiusDeviation(0.3f);
         return host;
     }
 
@@ -115,16 +115,16 @@ public class Playground implements TimeChangedListener {
             int[] move = host.getMove();
             LOGGER.debug("Pos: {}/{}, Vector: {}/{}", pos[0], pos[1], move[0], move[1]);
             if (pos[0] + move[0] >= this.maxX) {
-                newPos[0] = pos[0] + move[0] - this.maxX;
+                newPos[0] = Math.min(this.maxX - 1, pos[0] + move[0] - this.maxX);
             } else if (pos[0] + move[0] < 0) {
-                newPos[0] = this.maxX + pos[0] + move[0];
+                newPos[0] = Math.max(0, this.maxX + pos[0] + move[0]);
             } else {
                 newPos[0] = pos[0] + move[0];
             }
             if (pos[1] + move[1] >= this.maxY) {
-                newPos[1] = pos[1] + move[1] - this.maxY;
+                newPos[1] = Math.min(this.maxY - 1, pos[1] + move[1] - this.maxY);
             } else if (pos[1] + move[1] < 0) {
-                newPos[1] = this.maxY + pos[1] + move[1];
+                newPos[1] = Math.max(0, this.maxY + pos[1] + move[1]);
             } else {
                 newPos[1] = pos[1] + move[1];
             }

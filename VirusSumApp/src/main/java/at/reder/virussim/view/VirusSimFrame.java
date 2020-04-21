@@ -2,6 +2,7 @@ package at.reder.virussim.view;
 
 import at.reder.virussim.listener.PlaygroundChangedListener;
 import at.reder.virussim.model.Playground;
+import java.awt.Dimension;
 import javax.swing.JFrame;
 
 /**
@@ -10,18 +11,35 @@ import javax.swing.JFrame;
  */
 public class VirusSimFrame extends JFrame implements PlaygroundChangedListener {
 
+    private final Playground playground;
+    private int timestamp;
+    private PlaygroundComponent playgroundComponent;
+
     /**
      * Creates new form VirusSimFrame
+     *
+     * @param playground
      */
-    public VirusSimFrame() {
+    public VirusSimFrame(Playground playground) {
+        this.playground = playground;
+        this.playground.addPlaygroundChangeListener(this);
+        this.timestamp = 0;
         initComponents();
+        customInitComponents();
     }
 
     @Override
     public void playgroundChanged(Playground playground) {
-        this.playgroundPanel.removeAll();
-        this.playgroundPanel.add(new PlaygroundPanel(playground));
-        this.playgroundPanel.repaint();
+//        this.playgroundComponent.repaint();
+        this.repaint();
+    }
+
+    private void customInitComponents() {
+        this.playgroundComponent = new PlaygroundComponent(this.playground);
+        this.playgroundComponent.setSize(new Dimension(500, 250));
+//        this.playgroundComponent.setPreferredSize(this.jPanel1.getPreferredSize());
+        this.playgroundPanel.add(this.playgroundComponent);
+        pack();
     }
 
     /**
@@ -33,53 +51,44 @@ public class VirusSimFrame extends JFrame implements PlaygroundChangedListener {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        toolBar = new javax.swing.JToolBar();
-        jButton1 = new javax.swing.JButton();
+        configPanel = new javax.swing.JPanel();
+        nextTimestampButton = new javax.swing.JButton();
         infoPanel = new javax.swing.JPanel();
         propertiesPanel = new javax.swing.JPanel();
-        parameterPanel = new javax.swing.JPanel();
         playgroundPanel = new javax.swing.JPanel();
-        jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu1 = new javax.swing.JMenu();
-        jMenu2 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-        toolBar.setRollover(true);
+        setPreferredSize(new java.awt.Dimension(1024, 768));
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("at/reder/virussim/view/Bundle"); // NOI18N
-        jButton1.setText(bundle.getString("VirusSimFrame.jButton1.text")); // NOI18N
-        jButton1.setFocusable(false);
-        jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        toolBar.add(jButton1);
+        nextTimestampButton.setText(bundle.getString("VirusSimFrame.nextTimestampButton.text")); // NOI18N
+        nextTimestampButton.setFocusable(false);
+        nextTimestampButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        nextTimestampButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        nextTimestampButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nextTimestampButtonActionPerformed(evt);
+            }
+        });
+        configPanel.add(nextTimestampButton);
 
-        getContentPane().add(toolBar, java.awt.BorderLayout.PAGE_START);
+        getContentPane().add(configPanel, java.awt.BorderLayout.LINE_START);
         getContentPane().add(infoPanel, java.awt.BorderLayout.PAGE_END);
         getContentPane().add(propertiesPanel, java.awt.BorderLayout.LINE_END);
-        getContentPane().add(parameterPanel, java.awt.BorderLayout.LINE_START);
         getContentPane().add(playgroundPanel, java.awt.BorderLayout.CENTER);
-
-        jMenu1.setText(bundle.getString("VirusSimFrame.jMenu1.text")); // NOI18N
-        jMenuBar1.add(jMenu1);
-
-        jMenu2.setText(bundle.getString("VirusSimFrame.jMenu2.text")); // NOI18N
-        jMenuBar1.add(jMenu2);
-
-        setJMenuBar(jMenuBar1);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void nextTimestampButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextTimestampButtonActionPerformed
+        this.playground.timeChanged(this.timestamp++);
+    }//GEN-LAST:event_nextTimestampButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel configPanel;
     private javax.swing.JPanel infoPanel;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenu jMenu2;
-    private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JPanel parameterPanel;
+    private javax.swing.JButton nextTimestampButton;
     private javax.swing.JPanel playgroundPanel;
     private javax.swing.JPanel propertiesPanel;
-    private javax.swing.JToolBar toolBar;
     // End of variables declaration//GEN-END:variables
 }
