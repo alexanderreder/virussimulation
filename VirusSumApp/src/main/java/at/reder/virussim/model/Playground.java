@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 public class Playground implements TimeChangedListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Playground.class);
-    private static final Random POS_RANDOM = new Random();
+    private static final Random VARIATION_RANDOM = new Random();
     private final int maxX;
     private final int maxY;
     private final Host[][] hosts;
@@ -47,12 +47,30 @@ public class Playground implements TimeChangedListener {
         this.playgroundChangedListener.remove(pcl);
     }
 
-    public Host[][] getHosts() {
-        return this.hosts;
+    public int getMaxX() {
+        return this.maxX;
     }
 
-    public Host[][] getOldHosts() {
-        return this.oldHosts;
+    public int getMaxY() {
+        return this.maxY;
+    }
+
+    public Host getHost(int x, int y) {
+        return getHost(this.hosts, x, y);
+    }
+
+    public Host getOldHost(int x, int y) {
+        return getHost(this.oldHosts, x, y);
+    }
+
+    private Host getHost(Host[][] hostGrid, int x, int y) {
+        Host host;
+        if (x >= 0 && y >= 0 && hostGrid.length > x && hostGrid[0].length > y) {
+            host = hostGrid[x][y];
+        } else {
+            host = null;
+        }
+        return host;
     }
 
     @Override
@@ -60,12 +78,11 @@ public class Playground implements TimeChangedListener {
         // 1) copy host grid
         copyHostGrid();
         // 2) calculate new host infections
-        calculateInfection(null);
+        calculateHostInfections(timestamp);
         // 3) clear host grid
         clearHostGrid();
-        long start = System.currentTimeMillis();
-        this.hostVector.keySet().forEach(this::move);
-        LOGGER.info("Calculating new host infection/position takes {}ms", System.currentTimeMillis() - start);
+        // 4) Calculate new host positions
+        moveHosts();
         // 5) save new host grid
         // 6) clear old host grid
         playgroundChanged();
@@ -81,8 +98,8 @@ public class Playground implements TimeChangedListener {
             int x;
             int y;
             do {
-                x = POS_RANDOM.nextInt(this.maxX);
-                y = POS_RANDOM.nextInt(this.maxY);
+                x = VARIATION_RANDOM.nextInt(this.maxX);
+                y = VARIATION_RANDOM.nextInt(this.maxY);
             } while (this.hosts[x][y] != null);
             Host host = generateHost(hostId);
             this.hosts[x][y] = host;
@@ -101,11 +118,13 @@ public class Playground implements TimeChangedListener {
     }
 
     private void clearHostGrid() {
-        for (int x = 0; x < this.maxX; x++) {
-            for (int y = 0; y < this.maxY; y++) {
-                this.hosts[x][y] = null;
-            }
-        }
+        gridIterator((int x, int y) -> this.hosts[x][y] = null);
+    }
+
+    private void moveHosts() {
+        long start = System.currentTimeMillis();
+        this.hostVector.keySet().forEach(this::move);
+        LOGGER.info("Calculating new host infection/position takes {}ms", System.currentTimeMillis() - start);
     }
 
     private void move(Host host) {
@@ -133,26 +152,58 @@ public class Playground implements TimeChangedListener {
         this.hostVector.put(host, newPos);
     }
 
-    private void calculateInfection(Host host) {
+    private void calculateHostInfections(int timestamp) {
+        long start = System.currentTimeMillis();
+        gridIterator((int x, int y) -> {
+            Host host = hosts[x][y];
+            if (host != null) {
+                if (host.getVirus() != null && !host.isInfected()) {
+                    Virus virus = host.getVirus();
+// host infected after getting a virus
+                    int incubationTime = virus.getIncubationPeriod() + VARIATION_RANDOM.nextInt(Math.round(virus.getIncubationPeriod() * virus.getInfectionProbability()));
 
+                    int infectionTimestamp = host.getVirus().getIncubationPeriod();
+// timestamp >= virus timestamp + incubation time + incubation variation = infection timestamp
+                } else if (host.isInfected()) {
+                    // timestamp >= infection timestamp + healing time + healing variation = healed timestamp
+                } else if (host.isHealed()) {
+                    // check immunity status
+                    // timestamp >= healing timestamp + immuinity period + immunity variation
+                }
+            }
+        });
+        LOGGER.info("Calculating host infections finishes after {}ms", System.currentTimeMillis() - start);
     }
 
     private void copyHostGrid() {
+        long start = System.currentTimeMillis();
+        gridIterator((int x, int y) -> {
+            try {
+                if (hosts[x][y] != null) {
+                    oldHosts[x][y] = hosts[x][y].clone();
+                }
+            } catch (CloneNotSupportedException ex) {
+                LOGGER.error(ex.getMessage(), ex);
+            }
+        });
+        LOGGER.info("Copying grid finishes after {}ms", System.currentTimeMillis() - start);
+    }
+
+    private void gridIterator(GridProcessor processor) {
         for (int x = 0; x < this.maxX; x++) {
             for (int y = 0; y < this.maxY; y++) {
-                try {
-                    if (this.hosts[x][y] != null) {
-                        this.oldHosts[x][y] = this.hosts[x][y].clone();
-                    }
-                } catch (CloneNotSupportedException ex) {
-                    LOGGER.error(ex.getMessage(), ex);
-                }
+                processor.process(x, y);
             }
         }
     }
 
     private void playgroundChanged() {
         this.playgroundChangedListener.forEach(pcl -> pcl.playgroundChanged(this));
+    }
+
+    private interface GridProcessor {
+
+        public void process(int x, int y);
     }
 
 }

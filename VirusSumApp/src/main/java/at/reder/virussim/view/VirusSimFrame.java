@@ -2,8 +2,9 @@ package at.reder.virussim.view;
 
 import at.reder.virussim.listener.PlaygroundChangedListener;
 import at.reder.virussim.model.Playground;
-import java.awt.Dimension;
 import javax.swing.JFrame;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -11,6 +12,7 @@ import javax.swing.JFrame;
  */
 public class VirusSimFrame extends JFrame implements PlaygroundChangedListener {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(VirusSimFrame.class);
     private final Playground playground;
     private int timestamp;
     private PlaygroundComponent playgroundComponent;
@@ -30,14 +32,11 @@ public class VirusSimFrame extends JFrame implements PlaygroundChangedListener {
 
     @Override
     public void playgroundChanged(Playground playground) {
-//        this.playgroundComponent.repaint();
-        this.repaint();
+        this.playgroundPanel.repaint();
     }
 
     private void customInitComponents() {
         this.playgroundComponent = new PlaygroundComponent(this.playground);
-        this.playgroundComponent.setSize(new Dimension(500, 250));
-//        this.playgroundComponent.setPreferredSize(this.jPanel1.getPreferredSize());
         this.playgroundPanel.add(this.playgroundComponent);
         pack();
     }
@@ -55,10 +54,10 @@ public class VirusSimFrame extends JFrame implements PlaygroundChangedListener {
         nextTimestampButton = new javax.swing.JButton();
         infoPanel = new javax.swing.JPanel();
         propertiesPanel = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
         playgroundPanel = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(1024, 768));
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("at/reder/virussim/view/Bundle"); // NOI18N
         nextTimestampButton.setText(bundle.getString("VirusSimFrame.nextTimestampButton.text")); // NOI18N
@@ -75,7 +74,10 @@ public class VirusSimFrame extends JFrame implements PlaygroundChangedListener {
         getContentPane().add(configPanel, java.awt.BorderLayout.LINE_START);
         getContentPane().add(infoPanel, java.awt.BorderLayout.PAGE_END);
         getContentPane().add(propertiesPanel, java.awt.BorderLayout.LINE_END);
-        getContentPane().add(playgroundPanel, java.awt.BorderLayout.CENTER);
+
+        jScrollPane1.setViewportView(playgroundPanel);
+
+        getContentPane().add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -87,6 +89,7 @@ public class VirusSimFrame extends JFrame implements PlaygroundChangedListener {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel configPanel;
     private javax.swing.JPanel infoPanel;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton nextTimestampButton;
     private javax.swing.JPanel playgroundPanel;
     private javax.swing.JPanel propertiesPanel;

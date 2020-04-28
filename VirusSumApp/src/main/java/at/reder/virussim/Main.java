@@ -15,7 +15,7 @@ public class Main {//implements CommandLineRunner {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new VirusSimFrame(new Playground(500, 250, 0.2f)).setVisible(true));
+        SwingUtilities.invokeLater(() -> new VirusSimFrame(new Playground(1000, 768, 0.1f)).setVisible(true));
 //        SpringApplication.run(Main.class, args);
     }
 

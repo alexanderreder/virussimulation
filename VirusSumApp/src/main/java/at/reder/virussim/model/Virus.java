@@ -7,11 +7,13 @@ package at.reder.virussim.model;
 public class Virus {
 
     private final int incubationPeriod;
+    private final float incubationVariation;
     private final int infectionRadius;
-    private final double infectionProbability;
+    private final float infectionProbability;
 
-    public Virus(int incubationPeriod, int infectionRadius, double infectionProbalitiy) {
+    public Virus(int incubationPeriod, float incubationVariation, int infectionRadius, float infectionProbalitiy) {
         this.incubationPeriod = incubationPeriod;
+        this.incubationVariation = incubationVariation;
         this.infectionRadius = infectionRadius;
         this.infectionProbability = infectionProbalitiy;
     }
@@ -24,11 +26,15 @@ public class Virus {
         return this.incubationPeriod;
     }
 
+    public float getIncubationVariation() {
+        return this.incubationVariation;
+    }
+
     public int getInfectionRadius() {
         return this.infectionRadius;
     }
 
-    public double getInfectionProbability() {
+    public float getInfectionProbability() {
         return this.infectionProbability;
     }
 }

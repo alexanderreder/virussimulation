@@ -21,4 +21,4 @@ appender("FILE", RollingFileAppender) {
     }
 }
 
-root(INFO, appenderList)
+root(DEBUG, appenderList)

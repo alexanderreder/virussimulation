@@ -15,10 +15,14 @@ public class Host implements Cloneable {
     private final int id;
     private int mobilityRadius;
     private float mobilityRadiusDeviation;
-    private int immunityTime;
     private Virus virus;
+    private int virusTimestamp;
     private int infectionTimestamp;
-    private int healingPeroid;
+    private int healingPeriod;
+    private int healingVariation;
+    private int healdTimestamp;
+    private int immunityPeriod;
+    private int immunityVariation;
 
     public Host(int id) {
         this.id = id;
@@ -28,92 +32,45 @@ public class Host implements Cloneable {
         return this.id;
     }
 
-    /**
-     * @return the mobilityRadius
-     */
     public int getMobilityRadius() {
         return mobilityRadius;
     }
 
-    /**
-     * @param mobilityRadius the mobilityRadius to set
-     */
     public void setMobilityRadius(int mobilityRadius) {
         this.mobilityRadius = mobilityRadius;
     }
 
-    /**
-     * @return the mobilityRadiusDeviation
-     */
     public float getMobilityRadiusDeviation() {
         return mobilityRadiusDeviation;
     }
 
-    /**
-     * @param mobilityRadiusDeviation the mobilityRadiusDeviation to set
-     */
     public void setMobilityRadiusDeviation(float mobilityRadiusDeviation) {
         this.mobilityRadiusDeviation = mobilityRadiusDeviation;
     }
 
-    /**
-     * @return the immunityTime
-     */
-    public int getImmunityTime() {
-        return immunityTime;
-    }
-
-    /**
-     * @param immunityTime the immunityTime to set
-     */
-    public void setImmunityTime(int immunityTime) {
-        this.immunityTime = immunityTime;
-    }
-
-    /**
-     * @return the virus
-     */
     public Virus getVirus() {
         return virus;
     }
 
-    /**
-     * @param virus the virus to set
-     */
-    public void setVirus(Virus virus) {
+    public void setVirus(Virus virus, int timestamp) {
         this.virus = virus;
+        this.virusTimestamp = timestamp;
     }
 
-    /**
-     * @return the infectionTimestamp
-     */
     public int getInfectionTimestamp() {
         return infectionTimestamp;
     }
 
-    /**
-     * @param infectionTimestamp the infectionTimestamp to set
-     */
     public void setInfectionTimestamp(int infectionTimestamp) {
         this.infectionTimestamp = infectionTimestamp;
     }
 
-    /**
-     * @return the healingPeroid
-     */
-    public int getHealingPeroid() {
-        return healingPeroid;
-    }
-
-    /**
-     * @param healingPeroid the healingPeroid to set
-     */
-    public void setHealingPeroid(int healingPeroid) {
-        this.healingPeroid = healingPeroid;
-    }
-
     public boolean isInfected() {
-        return this.getVirus() != null;
+        return this.infectionTimestamp == -1;
+    }
+
+    public boolean isHealed() {
+        return this.healdTimestamp == -1;
     }
 
     public int[] getMove() {
@@ -141,7 +98,7 @@ public class Host implements Cloneable {
     @Override
     public Host clone() throws CloneNotSupportedException {
         Host hostClone = (Host) super.clone();
-        hostClone.setVirus(this.virus);
+        hostClone.setVirus(this.virus, this.virusTimestamp);
         return hostClone;
     }
 

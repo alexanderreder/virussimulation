@@ -1,7 +1,6 @@
 package at.reder.virussim.model;
 
 import org.junit.jupiter.api.AfterAll;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,13 +21,13 @@ public class PlaygroundTest {
     private static final float DENSITY = 0.25f;
     private static final Logger LOGGER = LoggerFactory.getLogger(PlaygroundTest.class);
 
-    private static Host[][] copyHostGrid(Host[][] hosts) {
-        Host[][] copiedHosts = new Host[MAX_X][MAX_Y];
-        for (int x = 0; x < MAX_X; x++) {
-            for (int y = 0; y < MAX_Y; y++) {
+    private static Host[][] copyHostGrid(Playground playground) {
+        Host[][] copiedHosts = new Host[playground.getMaxX()][playground.getMaxY()];
+        for (int x = 0; x < copiedHosts.length; x++) {
+            for (int y = 0; y < copiedHosts[x].length; y++) {
                 try {
-                    if (hosts[x][y] != null) {
-                        copiedHosts[x][y] = hosts[x][y].clone();
+                    if (playground.getHost(x, y) != null) {
+                        copiedHosts[x][y] = playground.getHost(x, y).clone();
                     }
                 } catch (CloneNotSupportedException ex) {
                     LOGGER.error(ex.getMessage(), ex);
@@ -59,10 +58,9 @@ public class PlaygroundTest {
     @Test
     public void testInitHosts() {
         int nHosts = 0;
-        Host[][] hosts = this.playground.getHosts();
-        for (Host[] hostLine : hosts) {
-            for (Host host : hostLine) {
-                if (host != null) {
+        for (int x = 0; x < this.playground.getMaxX(); x++) {
+            for (int y = 0; y < this.playground.getMaxY(); y++) {
+                if (this.playground.getHost(x, y) != null) {
                     nHosts++;
                 }
             }
@@ -75,10 +73,9 @@ public class PlaygroundTest {
     @Test
     public void testInitOldHosts() {
         int nHosts = 0;
-        Host[][] hosts = this.playground.getOldHosts();
-        for (Host[] hostLine : hosts) {
-            for (Host host : hostLine) {
-                if (host != null) {
+        for (int x = 0; x < this.playground.getMaxX(); x++) {
+            for (int y = 0; y < this.playground.getMaxY(); y++) {
+                if (this.playground.getOldHost(x, y) != null) {
                     nHosts++;
                 }
             }
@@ -90,10 +87,14 @@ public class PlaygroundTest {
 
     @Test
     public void testTimeChanged1() {
-        Host[][] copiedHosts = copyHostGrid(this.playground.getHosts());
+        Host[][] copiedHosts = copyHostGrid(this.playground);
         this.playground.timeChanged(0);
-        LOGGER.info("Time changed/copy: {}/{}", copiedHosts, this.playground.getOldHosts());
-        assertArrayEquals(copiedHosts, this.playground.getOldHosts());
+        LOGGER.info("Time changed/copy: {}/{}", copiedHosts.length, copiedHosts[0].length);
+        for (int x = 0; x < copiedHosts.length; x++) {
+            for (int y = 0; y < copiedHosts[x].length; y++) {
+                assertEquals(copiedHosts[x][y], this.playground.getOldHost(x, y));
+            }
+        }
     }
 
 //    @Configuration
