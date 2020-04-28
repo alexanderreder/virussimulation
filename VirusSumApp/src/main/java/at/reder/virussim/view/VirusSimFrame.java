@@ -24,7 +24,6 @@ public class VirusSimFrame extends JFrame implements PlaygroundChangedListener {
      */
     public VirusSimFrame(Playground playground) {
         this.playground = playground;
-        this.playground.addPlaygroundChangeListener(this);
         this.timestamp = 0;
         initComponents();
         customInitComponents();
