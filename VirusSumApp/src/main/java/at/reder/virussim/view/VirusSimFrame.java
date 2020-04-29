@@ -30,7 +30,7 @@ public class VirusSimFrame extends JFrame implements PlaygroundChangedListener {
     }
 
     @Override
-    public void playgroundChanged(Playground playground) {
+    public void playgroundChanged(Playground playground, int timestamp) {
         this.playgroundPanel.repaint();
     }
 

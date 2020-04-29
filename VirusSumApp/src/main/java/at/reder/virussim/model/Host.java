@@ -18,14 +18,15 @@ public class Host implements Cloneable {
     private Virus virus;
     private int virusTimestamp;
     private int infectionTimestamp;
-    private int healingPeriod;
-    private int healingVariation;
-    private int healdTimestamp;
+    private int healedTimestamp;
     private int immunityPeriod;
-    private int immunityVariation;
+    private float immunityVariation;
 
     public Host(int id) {
         this.id = id;
+        this.infectionTimestamp = -1;
+        this.healedTimestamp = -1;
+
     }
 
     public int getId() {
@@ -57,6 +58,10 @@ public class Host implements Cloneable {
         this.virusTimestamp = timestamp;
     }
 
+    public int getVirusTimestamp() {
+        return this.virusTimestamp;
+    }
+
     public int getInfectionTimestamp() {
         return infectionTimestamp;
     }
@@ -66,11 +71,41 @@ public class Host implements Cloneable {
     }
 
     public boolean isInfected() {
-        return this.infectionTimestamp == -1;
+        return this.infectionTimestamp != -1;
+    }
+
+    public int getHealedTimestamp() {
+        return this.healedTimestamp;
+    }
+
+    public void setHealedTimestamp(int healedTimestamp) {
+        this.healedTimestamp = healedTimestamp;
     }
 
     public boolean isHealed() {
-        return this.healdTimestamp == -1;
+        return this.healedTimestamp != -1;
+    }
+
+    public boolean isImmune() {
+        return this.virus != null
+                && (this.immunityPeriod == -1
+                || this.healedTimestamp != -1);
+    }
+
+    public int getImmunityPeriod() {
+        return this.immunityPeriod;
+    }
+
+    public void setImmunityPeriod(int immunityPeriod) {
+        this.immunityPeriod = immunityPeriod;
+    }
+
+    public float getImmunityVariation() {
+        return this.immunityVariation;
+    }
+
+    public void setImmunityVariation(float immunityVariation) {
+        this.immunityVariation = immunityVariation;
     }
 
     public int[] getMove() {

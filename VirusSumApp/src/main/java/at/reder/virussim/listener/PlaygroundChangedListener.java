@@ -8,5 +8,5 @@ import at.reder.virussim.model.Playground;
  */
 public interface PlaygroundChangedListener {
 
-    public void playgroundChanged(Playground playground);
+    public void playgroundChanged(Playground playground, int timestamp);
 }
