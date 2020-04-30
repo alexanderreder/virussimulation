@@ -10,27 +10,54 @@ import org.slf4j.LoggerFactory;
  */
 public class Host implements Cloneable {
 
+    public enum HealthStatus {
+        HEALTHY, INFECTED, TRIGGERED, IMMUNE, UNKNOWN
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(Host.class);
     private static final Random MOVE_RANDOM = new Random();
     private final int id;
     private int mobilityRadius;
     private float mobilityRadiusDeviation;
     private Virus virus;
-    private int virusTimestamp;
     private int infectionTimestamp;
-    private int healedTimestamp;
-    private int immunityPeriod;
-    private float immunityVariation;
+    private int triggeredTimestamp;
+    private int immuneTimestamp;
 
     public Host(int id) {
         this.id = id;
+        this.virus = null;
         this.infectionTimestamp = -1;
-        this.healedTimestamp = -1;
-
+        this.triggeredTimestamp = -1;
+        this.immuneTimestamp = -1;
     }
 
     public int getId() {
         return this.id;
+    }
+
+    public HealthStatus getHealthStatus() {
+        HealthStatus healthStatus;
+        if (this.virus != null) {
+            if (this.infectionTimestamp >= 0
+                    && this.triggeredTimestamp == -1
+                    && this.immuneTimestamp == -1) {
+                healthStatus = HealthStatus.INFECTED;
+            } else if (this.infectionTimestamp >= 0
+                    && this.triggeredTimestamp >= 0
+                    && this.immuneTimestamp == -1) {
+                healthStatus = HealthStatus.TRIGGERED;
+            } else if (this.infectionTimestamp >= 0
+                    && this.triggeredTimestamp >= 0
+                    && this.immuneTimestamp >= 0) {
+                healthStatus = HealthStatus.IMMUNE;
+            } else {
+                healthStatus = HealthStatus.UNKNOWN;
+            }
+        } else {
+            healthStatus = HealthStatus.HEALTHY;
+        }
+        return healthStatus;
     }
 
     public int getMobilityRadius() {
@@ -55,11 +82,7 @@ public class Host implements Cloneable {
 
     public void setVirus(Virus virus, int timestamp) {
         this.virus = virus;
-        this.virusTimestamp = timestamp;
-    }
-
-    public int getVirusTimestamp() {
-        return this.virusTimestamp;
+        this.infectionTimestamp = timestamp;
     }
 
     public int getInfectionTimestamp() {
@@ -70,42 +93,20 @@ public class Host implements Cloneable {
         this.infectionTimestamp = infectionTimestamp;
     }
 
-    public boolean isInfected() {
-        return this.infectionTimestamp != -1;
+    public int getTriggeredTimestamp() {
+        return this.triggeredTimestamp;
     }
 
-    public int getHealedTimestamp() {
-        return this.healedTimestamp;
+    public void setTriggeredTimestamp(int triggeredTimestamp) {
+        this.triggeredTimestamp = triggeredTimestamp;
     }
 
-    public void setHealedTimestamp(int healedTimestamp) {
-        this.healedTimestamp = healedTimestamp;
+    public int getImmuneTimestamp() {
+        return this.immuneTimestamp;
     }
 
-    public boolean isHealed() {
-        return this.healedTimestamp != -1;
-    }
-
-    public boolean isImmune() {
-        return this.virus != null
-                && (this.immunityPeriod == -1
-                || this.healedTimestamp != -1);
-    }
-
-    public int getImmunityPeriod() {
-        return this.immunityPeriod;
-    }
-
-    public void setImmunityPeriod(int immunityPeriod) {
-        this.immunityPeriod = immunityPeriod;
-    }
-
-    public float getImmunityVariation() {
-        return this.immunityVariation;
-    }
-
-    public void setImmunityVariation(float immunityVariation) {
-        this.immunityVariation = immunityVariation;
+    public void setImmuneTimestamp(int immuneTimestamp) {
+        this.immuneTimestamp = immuneTimestamp;
     }
 
     public int[] getMove() {
@@ -133,7 +134,7 @@ public class Host implements Cloneable {
     @Override
     public Host clone() throws CloneNotSupportedException {
         Host hostClone = (Host) super.clone();
-        hostClone.setVirus(this.virus, this.virusTimestamp);
+        hostClone.setVirus(this.virus, this.infectionTimestamp);
         return hostClone;
     }
 

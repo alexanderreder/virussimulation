@@ -1,7 +1,12 @@
 package at.reder.virussim.model;
 
+import at.reder.virussim.helper.VariationElement;
 import at.reder.virussim.listener.PlaygroundChangedListener;
 import at.reder.virussim.listener.TimeChangedListener;
+import static at.reder.virussim.model.Host.HealthStatus.HEALTHY;
+import static at.reder.virussim.model.Host.HealthStatus.INFECTED;
+import static at.reder.virussim.model.Host.HealthStatus.TRIGGERED;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -19,7 +24,7 @@ public class Playground implements TimeChangedListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(Playground.class);
     private static final Random VARIATION_RANDOM = new Random();
     private static final int RESOLUTION = 1000;
-    private static final float INFACTION_RATE = 0.01f;
+    private static final float INFACTION_RATE = 0.05f;
     private final int maxX;
     private final int maxY;
     private final Host[][] hosts;
@@ -88,30 +93,35 @@ public class Playground implements TimeChangedListener {
         // 4) Calculate new host positions
         moveHosts();
         // 5) save new host grid
+        logStatistics(timestamp, this.hosts);
+        logStatistics(timestamp, this.oldHosts);
         // 6) clear old host grid
-        logStatistics(timestamp);
+        clearOldHostGrid();
         playgroundChanged(timestamp);
     }
 
-    private void logStatistics(int timestamp) {
-        int[] result = new int[]{0, 0, 0, 0};
+    private void logStatistics(int timestamp, Host[][] hosts) {
+        Map<Host.HealthStatus, Integer> result = new EnumMap<>(Host.HealthStatus.class);
         gridIterator((int x, int y) -> {
-            if (this.hosts[x][y] != null) {
-                Host host = this.hosts[x][y];
-                if (host.isImmune()) {
-                    result[3]++;
-                } else if (host.getVirus() != null) {
-                    if (host.isInfected()) {
-                        result[1]++;
-                    } else {
-                        result[0]++;
-                    }
+            if (hosts[x][y] != null) {
+                Host host = hosts[x][y];
+                if (!result.containsKey(host.getHealthStatus())) {
+                    result.put(host.getHealthStatus(), 1);
                 } else {
-                    result[2]++;
+                    result.put(host.getHealthStatus(), result.get(host.getHealthStatus()) + 1);
                 }
             }
         });
-        LOGGER.info("{}: {} hosts with virus, {} hosts infected, {} host immune, {} hosts healthy", timestamp, result[0], result[1], result[3], result[2]);
+        StringBuilder logString = new StringBuilder(64);
+        logString.append(timestamp).append(": ");
+        for (Host.HealthStatus healthStatus : Host.HealthStatus.values()) {
+            int count = 0;
+            if (result.containsKey(healthStatus) && result.get(healthStatus) != null) {
+                count = result.get(healthStatus);
+            }
+            logString.append(count).append(" Hosts with status ").append(healthStatus).append(", ");
+        }
+        LOGGER.info(logString.substring(0, logString.length() - 3));
     }
 
     private void initHosts(int maxHosts) {
@@ -133,9 +143,12 @@ public class Playground implements TimeChangedListener {
             if (this.probabilityArray[VARIATION_RANDOM.nextInt(RESOLUTION - 1)] == 1) {
                 infectedCount++;
                 LOGGER.info("Host {} initially virus infected", host);
-                host.setVirus(new Virus(2, 0.1f,
-                        20, 0.25f,
-                        7, 0.2f), 0);
+                host.setVirus(new Virus(10,
+                        0.8f,
+                        new VariationElement(3, 0.4f),
+                        new VariationElement(7, 0.3f),
+                        new VariationElement(14, 0.2f)
+                ), 0);
             }
             this.hosts[x][y] = host;
             this.oldHosts[x][y] = null;
@@ -149,13 +162,15 @@ public class Playground implements TimeChangedListener {
         Host host = new Host(id);
         host.setMobilityRadius((this.maxX + this.maxY) / 6);
         host.setMobilityRadiusDeviation(0.3f);
-        host.setImmunityPeriod(7);
-        host.setImmunityVariation(0.1f);
         return host;
     }
 
     private void clearHostGrid() {
         gridIterator((int x, int y) -> this.hosts[x][y] = null);
+    }
+
+    private void clearOldHostGrid() {
+        gridIterator((int x, int y) -> this.oldHosts[x][y] = null);
     }
 
     private void moveHosts() {
@@ -195,37 +210,42 @@ public class Playground implements TimeChangedListener {
             Host host = this.hosts[x][y];
             if (host != null && host.getVirus() != null) {
                 Virus virus = host.getVirus();
-                if (!host.isImmune() && !host.isInfected()) {
-                    // host infected after getting a virus
-                    // timestamp >= virus timestamp + incubation time + incubation variation = infection timestamp
-                    int incubationTime = getVariation(virus.getIncubationPeriod(), virus.getInfectionProbability());
-                    if (timestamp >= incubationTime + host.getVirusTimestamp()) {
-                        host.setInfectionTimestamp(timestamp);
-                        LOGGER.info("Host {} became infected at {} with virus {}", host, timestamp, virus);
-                    }
-                } else if (host.isInfected()) {
-                    // timestamp >= infection timestamp + healing time + healing variation = healed timestamp
-                    int healingTime = getVariation(virus.getHealingPeriod(), virus.getHealingVariation());
-                    if (timestamp >= healingTime + host.getInfectionTimestamp()) {
-                        host.setInfectionTimestamp(-1);
-                        host.setHealedTimestamp(timestamp);
-                        LOGGER.info("Host {} became healed at {} with virus {}", host, timestamp, virus);
-                    }
-                } else if (host.isHealed()) {
-                    // check immunity status
-                    // timestamp >= healing timestamp + immuinity period + immunity variation
-                    if (host.getImmunityPeriod() >= 0) {
-                        int immunityTime = getVariation(host.getImmunityPeriod(), host.getImmunityVariation());
-                        if (timestamp >= immunityTime + host.getHealedTimestamp()) {
-                            host.setVirus(null, -1);
-                            host.setHealedTimestamp(-1);
-                            LOGGER.info("Host ({}) immunity for virus {} ended at {}", host, virus, timestamp);
+                switch (host.getHealthStatus()) {
+                    case INFECTED:
+                        // host infected after getting a virus
+                        // timestamp >= virus timestamp + incubation time + incubation variation = infection timestamp
+                        int incubationTime = virus.getTriggerPeriod().getValue();//getVariation(virus.getIncubationPeriod(), virus.getInfectionProbability());
+                        if (timestamp >= incubationTime + host.getInfectionTimestamp()) {
+                            host.setTriggeredTimestamp(timestamp);
+                            LOGGER.info("Host {} became triggerd at {} with virus {}", host, timestamp, virus);
                         }
-                    }
+                        break;
+                    case TRIGGERED:
+                        // timestamp >= infection timestamp + healing time + healing variation = healed timestamp
+                        int healingTime = virus.getHealingPeriod().getValue();//getVariation(virus.getHealingPeriod(), virus.getHealingVariation());
+                        if (timestamp >= healingTime + host.getInfectionTimestamp()) {
+                            host.setImmuneTimestamp(timestamp);
+                            LOGGER.info("Host {} became immune at {} with virus {}", host, timestamp, virus);
+                        }
+                        break;
+                    case IMMUNE:
+                        // check immunity status
+                        // timestamp >= healing timestamp + immuinity period + immunity variation
+                        if (virus.getImmunityPeriod().getBase() >= 0) {
+                            int immunityTime = virus.getImmunityPeriod().getValue();//getVariation(host.getImmunityPeriod(), host.getImmunityVariation());
+                            if (timestamp >= immunityTime + host.getImmuneTimestamp()) {
+                                host.setVirus(null, -1);
+                                host.setTriggeredTimestamp(-1);
+                                host.setImmuneTimestamp(-1);
+                                LOGGER.info("Host ({}) immunity for virus {} ended at {}", host, virus, timestamp);
+                            }
+                        }
+                        break;
                 }
             }
             Host oldHost = this.oldHosts[x][y];
-            if (oldHost != null && oldHost.getVirus() != null && !oldHost.isHealed()) {
+            if (oldHost != null
+                    && (oldHost.getHealthStatus() == INFECTED || oldHost.getHealthStatus() == TRIGGERED)) {
                 Virus virus = oldHost.getVirus();
                 // search neigbours in infectionRadius
                 Set<Host> neighbours = getNeighbours(x, y, virus.getInfectionRadius());
@@ -234,7 +254,7 @@ public class Playground implements TimeChangedListener {
                     int[] pos = this.hostVector.get(neighbour);
                     float distance = (float) Math.sqrt(Math.pow(pos[0] - x, 2) + Math.pow(pos[1] - y, 2));
                     float infection = virus.getInfectionProbability() / distance;
-                    LOGGER.info("Infection probability for host{}={}", neighbour.getId(), infection);
+                    LOGGER.debug("Infection probability for host {}={}", neighbour.getId(), infection);
                     setProbabilityArray(infection);
                     boolean infected = this.probabilityArray[VARIATION_RANDOM.nextInt(RESOLUTION - 1)] == 1;
                     if (infected) {
@@ -265,10 +285,9 @@ public class Playground implements TimeChangedListener {
         int yMax = Math.min(this.maxY - 1, y + infectionRadius);
         for (int px = xMin; px <= xMax; px++) {
             for (int py = yMin; py <= yMax; py++) {
-                if (x != px && y != py
+                if ((x != px || y != py)
                         && this.hosts[px][py] != null
-                        && this.hosts[px][py].getVirus() != null
-                        && !this.hosts[px][py].isImmune()) {
+                        && this.hosts[px][py].getHealthStatus() == HEALTHY) {
                     neighbours.add(this.hosts[px][py]);
                 }
             }
@@ -306,6 +325,7 @@ public class Playground implements TimeChangedListener {
 
     private void playgroundChanged(int timestamp) {
         this.playgroundChangedListener.forEach(pcl -> pcl.playgroundChanged(this, timestamp));
+
     }
 
     private interface GridProcessor {

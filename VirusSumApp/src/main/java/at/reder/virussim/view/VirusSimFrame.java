@@ -13,20 +13,22 @@ import org.slf4j.LoggerFactory;
 public class VirusSimFrame extends JFrame implements PlaygroundChangedListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VirusSimFrame.class);
-    private final Playground playground;
+//    private Playground playground;
     private int timestamp;
     private PlaygroundComponent playgroundComponent;
 
-    /**
-     * Creates new form VirusSimFrame
-     *
-     * @param playground
-     */
-    public VirusSimFrame(Playground playground) {
-        this.playground = playground;
+    public VirusSimFrame() {
         this.timestamp = 0;
         initComponents();
         customInitComponents();
+    }
+
+    public void setPlayground(Playground playground) {
+        if (this.playgroundComponent.getPlayground() != null) {
+            this.playgroundComponent.getPlayground().removePlaygroundChangedListener(this);
+        }
+        playground.addPlaygroundChangeListener(this);
+        this.playgroundComponent.setPlayground(playground);
     }
 
     @Override
@@ -35,7 +37,7 @@ public class VirusSimFrame extends JFrame implements PlaygroundChangedListener {
     }
 
     private void customInitComponents() {
-        this.playgroundComponent = new PlaygroundComponent(this.playground);
+        this.playgroundComponent = new PlaygroundComponent();
         this.playgroundPanel.add(this.playgroundComponent);
         pack();
     }
@@ -82,7 +84,9 @@ public class VirusSimFrame extends JFrame implements PlaygroundChangedListener {
     }// </editor-fold>//GEN-END:initComponents
 
     private void nextTimestampButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextTimestampButtonActionPerformed
-        this.playground.timeChanged(this.timestamp++);
+        if (this.playgroundComponent.getPlayground() != null) {
+            this.playgroundComponent.getPlayground().timeChanged(++this.timestamp);
+        }
     }//GEN-LAST:event_nextTimestampButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

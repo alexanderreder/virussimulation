@@ -17,8 +17,8 @@ public class Main {//implements CommandLineRunner {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             Playground playground = new Playground(1000, 768, 0.1f);
-            VirusSimFrame vsf = new VirusSimFrame(playground);
-            playground.addPlaygroundChangeListener(vsf);
+            VirusSimFrame vsf = new VirusSimFrame();
+            vsf.setPlayground(playground);
             vsf.setVisible(true);
         });
 //        SpringApplication.run(Main.class, args);

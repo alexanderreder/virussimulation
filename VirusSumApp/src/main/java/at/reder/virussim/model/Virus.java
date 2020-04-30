@@ -1,54 +1,49 @@
 package at.reder.virussim.model;
 
+import at.reder.virussim.helper.VariationElement;
+
 /**
  *
  * @author alex
  */
 public class Virus {
 
-    private final int incubationPeriod;
-    private final float incubationVariation;
     private final int infectionRadius;
     private final float infectionProbability;
-    private final int healingPeriod;
-    private final float healingVariation;
+    private final VariationElement triggerPeriod;
+    private final VariationElement healingPeriod;
+    private final VariationElement immunityPeriod;
 
-    public Virus(int incubationPeriod, float incubationVariation,
-            int infectionRadius, float infectionProbalitiy,
-            int healingPeriod, float healingVariation) {
-        this.incubationPeriod = incubationPeriod;
-        this.incubationVariation = incubationVariation;
+    public Virus(int infectionRadius,
+            float infectionProbability,
+            VariationElement triggerPeriod,
+            VariationElement healingPeriod,
+            VariationElement immunityPeriod) {
         this.infectionRadius = infectionRadius;
-        this.infectionProbability = infectionProbalitiy;
+        this.infectionProbability = infectionProbability;
+        this.triggerPeriod = triggerPeriod;
         this.healingPeriod = healingPeriod;
-        this.healingVariation = healingVariation;
-    }
-
-    public Virus getInfectionVirus() {
-        return this;
-    }
-
-    public int getIncubationPeriod() {
-        return this.incubationPeriod;
-    }
-
-    public float getIncubationVariation() {
-        return this.incubationVariation;
+        this.immunityPeriod = immunityPeriod;
     }
 
     public int getInfectionRadius() {
-        return this.infectionRadius;
+        return infectionRadius;
     }
 
     public float getInfectionProbability() {
         return this.infectionProbability;
     }
 
-    public int getHealingPeriod() {
-        return this.healingPeriod;
+    public VariationElement getTriggerPeriod() {
+        return triggerPeriod;
     }
 
-    public float getHealingVariation() {
-        return this.healingVariation;
+    public VariationElement getHealingPeriod() {
+        return healingPeriod;
     }
+
+    public VariationElement getImmunityPeriod() {
+        return immunityPeriod;
+    }
+
 }
