@@ -1,6 +1,7 @@
 package at.reder.virussim.listener;
 
 import at.reder.virussim.model.Playground;
+import at.reder.virussim.model.Statistics;
 
 /**
  *
@@ -8,5 +9,5 @@ import at.reder.virussim.model.Playground;
  */
 public interface PlaygroundChangedListener {
 
-    public void playgroundChanged(Playground playground, int timestamp);
+    public void playgroundChanged(Playground playground, Statistics statistics);
 }

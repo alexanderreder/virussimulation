@@ -1,6 +1,5 @@
 package at.reder.virussim.model;
 
-import at.reder.virussim.helper.VariationElement;
 import at.reder.virussim.listener.PlaygroundChangedListener;
 import at.reder.virussim.listener.TimeChangedListener;
 import static at.reder.virussim.model.Host.HealthStatus.HEALTHY;
@@ -32,12 +31,13 @@ public class Playground implements TimeChangedListener {
     private final Map<Host, int[]> hostVector;
     private final Set<PlaygroundChangedListener> playgroundChangedListener;
     private final int[] probabilityArray;
+    private final Virus virus;
 
-    public Playground(int maxX, int maxY, float density) {
-        this(maxX, maxY, Math.round(maxX * maxY * density));
+    public Playground(int maxX, int maxY, float density, int initialInfected, Virus virus) {
+        this(maxX, maxY, Math.round(maxX * maxY * density), initialInfected, virus);
     }
 
-    public Playground(int maxX, int maxY, int maxHosts) {
+    public Playground(int maxX, int maxY, int maxHosts, int initialInfected, Virus virus) {
         this.maxX = maxX;
         this.maxY = maxY;
         this.hosts = new Host[this.maxX][this.maxY];
@@ -45,7 +45,8 @@ public class Playground implements TimeChangedListener {
         this.hostVector = new HashMap<>(maxHosts);
         this.playgroundChangedListener = new HashSet<>();
         this.probabilityArray = new int[RESOLUTION];
-        initHosts(maxHosts);
+        this.virus = virus;
+        initHosts(maxHosts, initialInfected);
     }
 
     public void addPlaygroundChangeListener(PlaygroundChangedListener pcl) {
@@ -54,6 +55,10 @@ public class Playground implements TimeChangedListener {
 
     public void removePlaygroundChangedListener(PlaygroundChangedListener pcl) {
         this.playgroundChangedListener.remove(pcl);
+    }
+
+    public Virus getVirus() {
+        return this.virus;
     }
 
     public int getMaxX() {
@@ -93,18 +98,18 @@ public class Playground implements TimeChangedListener {
         // 4) Calculate new host positions
         moveHosts();
         // 5) save new host grid
-        logStatistics(timestamp, this.hosts);
-        logStatistics(timestamp, this.oldHosts);
+        Statistics statistics = logStatistics(timestamp);
         // 6) clear old host grid
         clearOldHostGrid();
-        playgroundChanged(timestamp);
+        playgroundChanged(statistics);
     }
 
-    private void logStatistics(int timestamp, Host[][] hosts) {
+    private Statistics logStatistics(int timestamp) {
+        Statistics statistics = new Statistics(timestamp);
         Map<Host.HealthStatus, Integer> result = new EnumMap<>(Host.HealthStatus.class);
         gridIterator((int x, int y) -> {
-            if (hosts[x][y] != null) {
-                Host host = hosts[x][y];
+            if (this.hosts[x][y] != null) {
+                Host host = this.hosts[x][y];
                 if (!result.containsKey(host.getHealthStatus())) {
                     result.put(host.getHealthStatus(), 1);
                 } else {
@@ -112,6 +117,7 @@ public class Playground implements TimeChangedListener {
                 }
             }
         });
+        statistics.setHostStatus(result);
         StringBuilder logString = new StringBuilder(64);
         logString.append(timestamp).append(": ");
         for (Host.HealthStatus healthStatus : Host.HealthStatus.values()) {
@@ -122,9 +128,10 @@ public class Playground implements TimeChangedListener {
             logString.append(count).append(" Hosts with status ").append(healthStatus).append(", ");
         }
         LOGGER.info(logString.substring(0, logString.length() - 3));
+        return statistics;
     }
 
-    private void initHosts(int maxHosts) {
+    private void initHosts(int maxHosts, int initialInfected) {
         long start = System.currentTimeMillis();
         if (maxHosts > (this.maxX * this.maxY * 0.75)) {
             maxHosts = Math.round(this.maxX * this.maxY * 0.75f);
@@ -140,21 +147,17 @@ public class Playground implements TimeChangedListener {
                 y = VARIATION_RANDOM.nextInt(this.maxY);
             } while (this.hosts[x][y] != null);
             Host host = generateHost(hostId);
-            if (this.probabilityArray[VARIATION_RANDOM.nextInt(RESOLUTION - 1)] == 1) {
+            if (initialInfected > 0) {
+                initialInfected--;
                 infectedCount++;
                 LOGGER.info("Host {} initially virus infected", host);
-                host.setVirus(new Virus(10,
-                        0.8f,
-                        new VariationElement(3, 0.4f),
-                        new VariationElement(7, 0.3f),
-                        new VariationElement(14, 0.2f)
-                ), 0);
+                host.setVirus(this.virus, 0);
             }
             this.hosts[x][y] = host;
             this.oldHosts[x][y] = null;
             this.hostVector.put(host, new int[]{x, y});
         }
-        playgroundChanged(0);
+        playgroundChanged(new Statistics(0));
         LOGGER.info("Initializing playground ({}/{}) with {} hosts, {} infected,  finished in {}ms", this.maxX, this.maxY, maxHosts, infectedCount, System.currentTimeMillis() - start);
     }
 
@@ -180,6 +183,7 @@ public class Playground implements TimeChangedListener {
     }
 
     private void move(Host host) {
+
         int[] pos = this.hostVector.get(host);
         int[] newPos = new int[2];
         do {
@@ -245,7 +249,7 @@ public class Playground implements TimeChangedListener {
             }
             Host oldHost = this.oldHosts[x][y];
             if (oldHost != null
-                    && (oldHost.getHealthStatus() == INFECTED || oldHost.getHealthStatus() == TRIGGERED)) {
+                && (oldHost.getHealthStatus() == INFECTED || oldHost.getHealthStatus() == TRIGGERED)) {
                 Virus virus = oldHost.getVirus();
                 // search neigbours in infectionRadius
                 Set<Host> neighbours = getNeighbours(x, y, virus.getInfectionRadius());
@@ -286,8 +290,8 @@ public class Playground implements TimeChangedListener {
         for (int px = xMin; px <= xMax; px++) {
             for (int py = yMin; py <= yMax; py++) {
                 if ((x != px || y != py)
-                        && this.hosts[px][py] != null
-                        && this.hosts[px][py].getHealthStatus() == HEALTHY) {
+                    && this.hosts[px][py] != null
+                    && this.hosts[px][py].getHealthStatus() == HEALTHY) {
                     neighbours.add(this.hosts[px][py]);
                 }
             }
@@ -295,12 +299,11 @@ public class Playground implements TimeChangedListener {
         return neighbours;
     }
 
-    private int getVariation(int base, float variation) {
-        int absVariation = Math.round(base * variation);
-        return VARIATION_RANDOM.nextInt(absVariation * 2) - absVariation + base;
-
-    }
-
+//    private int getVariation(int base, float variation) {
+//        int absVariation = Math.round(base * variation);
+//        return VARIATION_RANDOM.nextInt(absVariation * 2) - absVariation + base;
+//
+//    }
     private void copyHostGrid() {
         long start = System.currentTimeMillis();
         gridIterator((int x, int y) -> {
@@ -323,8 +326,8 @@ public class Playground implements TimeChangedListener {
         }
     }
 
-    private void playgroundChanged(int timestamp) {
-        this.playgroundChangedListener.forEach(pcl -> pcl.playgroundChanged(this, timestamp));
+    private void playgroundChanged(Statistics statistics) {
+        this.playgroundChangedListener.forEach(pcl -> pcl.playgroundChanged(this, statistics));
 
     }
 

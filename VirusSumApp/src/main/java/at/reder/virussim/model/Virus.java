@@ -8,17 +8,21 @@ import at.reder.virussim.helper.VariationElement;
  */
 public class Virus {
 
-    private final int infectionRadius;
-    private final float infectionProbability;
-    private final VariationElement triggerPeriod;
-    private final VariationElement healingPeriod;
-    private final VariationElement immunityPeriod;
+    protected int infectionRadius;
+    protected float infectionProbability;
+    protected VariationElement triggerPeriod;
+    protected VariationElement healingPeriod;
+    protected VariationElement immunityPeriod;
+
+    public Virus() {
+
+    }
 
     public Virus(int infectionRadius,
-            float infectionProbability,
-            VariationElement triggerPeriod,
-            VariationElement healingPeriod,
-            VariationElement immunityPeriod) {
+        float infectionProbability,
+        VariationElement triggerPeriod,
+        VariationElement healingPeriod,
+        VariationElement immunityPeriod) {
         this.infectionRadius = infectionRadius;
         this.infectionProbability = infectionProbability;
         this.triggerPeriod = triggerPeriod;
@@ -44,6 +48,41 @@ public class Virus {
 
     public VariationElement getImmunityPeriod() {
         return immunityPeriod;
+    }
+
+    /**
+     * @param infectionRadius the infectionRadius to set
+     */
+    public void setInfectionRadius(int infectionRadius) {
+        this.infectionRadius = infectionRadius;
+    }
+
+    /**
+     * @param infectionProbability the infectionProbability to set
+     */
+    public void setInfectionProbability(float infectionProbability) {
+        this.infectionProbability = infectionProbability;
+    }
+
+    /**
+     * @param triggerPeriod the triggerPeriod to set
+     */
+    public void setTriggerPeriod(VariationElement triggerPeriod) {
+        this.triggerPeriod = triggerPeriod;
+    }
+
+    /**
+     * @param healingPeriod the healingPeriod to set
+     */
+    public void setHealingPeriod(VariationElement healingPeriod) {
+        this.healingPeriod = healingPeriod;
+    }
+
+    /**
+     * @param immunityPeriod the immunityPeriod to set
+     */
+    public void setImmunityPeriod(VariationElement immunityPeriod) {
+        this.immunityPeriod = immunityPeriod;
     }
 
 }

@@ -1,5 +1,6 @@
 package at.reder.virussim.model;
 
+import at.reder.virussim.helper.VariationElement;
 import org.junit.jupiter.api.AfterAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeAll;
@@ -49,7 +50,12 @@ public class PlaygroundTest {
 
     @BeforeEach
     public void setUp() {
-        this.playground = new Playground(MAX_X, MAX_Y, DENSITY);
+        this.playground = new Playground(MAX_X, MAX_Y, DENSITY, 1, new Virus(10,
+            0.8f,
+            new VariationElement(3, 0.4f),
+            new VariationElement(7, 0.3f),
+            new VariationElement(14, 0.2f)
+        ));
     }
 
     public void tearDown() {
