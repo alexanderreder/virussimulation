@@ -137,6 +137,7 @@ public class VirusSimFrame extends JFrame implements PlaygroundChangedListener {
         shortLabel = new javax.swing.JLabel();
         shortSlider = new javax.swing.JSlider();
         updateMotionHabitsButton = new javax.swing.JButton();
+        allowSikToMoveCheckBox = new javax.swing.JCheckBox();
         jScrollPane1 = new javax.swing.JScrollPane();
         playgroundPanel = new javax.swing.JPanel();
 
@@ -316,7 +317,7 @@ public class VirusSimFrame extends JFrame implements PlaygroundChangedListener {
 
         immunityLabel.setText(bundle.getString("VirusSimFrame.immunityLabel.text")); // NOI18N
 
-        immunitytimeSpinner.setModel(new javax.swing.SpinnerNumberModel(21, 0, null, 1));
+        immunitytimeSpinner.setModel(new javax.swing.SpinnerNumberModel(21, -1, null, 1));
 
         immunitytimeVariationSpinner.setModel(new javax.swing.SpinnerNumberModel(0.1f, 0.0f, null, 0.1f));
 
@@ -343,6 +344,8 @@ public class VirusSimFrame extends JFrame implements PlaygroundChangedListener {
             }
         });
 
+        allowSikToMoveCheckBox.setText(bundle.getString("VirusSimFrame.allowSikToMoveCheckBox.text")); // NOI18N
+
         javax.swing.GroupLayout propertiesPanelLayout = new javax.swing.GroupLayout(propertiesPanel);
         propertiesPanel.setLayout(propertiesPanelLayout);
         propertiesPanelLayout.setHorizontalGroup(
@@ -350,7 +353,7 @@ public class VirusSimFrame extends JFrame implements PlaygroundChangedListener {
             .addGroup(propertiesPanelLayout.createSequentialGroup()
                 .addGap(18, 18, 18)
                 .addGroup(propertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(shortSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(shortSlider, javax.swing.GroupLayout.DEFAULT_SIZE, 203, Short.MAX_VALUE)
                     .addComponent(medSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addComponent(longSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addComponent(jSeparator2, javax.swing.GroupLayout.Alignment.TRAILING)
@@ -403,7 +406,8 @@ public class VirusSimFrame extends JFrame implements PlaygroundChangedListener {
                                     .addComponent(infectionProbabilitySpinner)
                                     .addComponent(triggertimeVariationSpinner)
                                     .addComponent(healingtimeVariationSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, 42, Short.MAX_VALUE)
-                                    .addComponent(immunitytimeVariationSpinner))))
+                                    .addComponent(immunitytimeVariationSpinner)))
+                            .addComponent(allowSikToMoveCheckBox))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -460,6 +464,8 @@ public class VirusSimFrame extends JFrame implements PlaygroundChangedListener {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(motionHabitsLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(allowSikToMoveCheckBox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(longLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(longSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -473,7 +479,7 @@ public class VirusSimFrame extends JFrame implements PlaygroundChangedListener {
                 .addComponent(shortSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(updateMotionHabitsButton)
-                .addContainerGap(19, Short.MAX_VALUE))
+                .addContainerGap(28, Short.MAX_VALUE))
         );
 
         getContentPane().add(propertiesPanel, java.awt.BorderLayout.LINE_END);
@@ -503,10 +509,13 @@ public class VirusSimFrame extends JFrame implements PlaygroundChangedListener {
     }//GEN-LAST:event_updateVirusButtonActionPerformed
 
     private void updateMotionHabitsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateMotionHabitsButtonActionPerformed
-        // TODO add your handling code here:
+        if (this.playgroundComponent.getPlayground() != null) {
+            this.playgroundComponent.getPlayground().setAllowSikToMove(this.allowSikToMoveCheckBox.isSelected());
+        }
     }//GEN-LAST:event_updateMotionHabitsButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JCheckBox allowSikToMoveCheckBox;
     private javax.swing.JPanel configPanel;
     private javax.swing.JLabel densityLabel;
     private javax.swing.JSpinner densitySpinner;
